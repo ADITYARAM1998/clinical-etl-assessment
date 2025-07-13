@@ -10,9 +10,10 @@ router.post('/jobs', etlController.submitJob);
 // GET /api/etl/jobs/:id - Get ETL job details
 router.get('/jobs/:id', etlController.getJob);
 
-// TODO: Add status endpoint
-// GET /api/etl/jobs/:id/status - Get ETL job status (MISSING - CANDIDATE TO IMPLEMENT)
+// GET /api/etl/jobs/:id/status - Get ETL job status
 router.get('/jobs/:id/status', etlController.getJobStatus);
 
+// GET /api/etl/jobs - Get all jobs with optional ?status param
+router.get('/jobs', etlController.getAllJobs);
 
 export default router;
