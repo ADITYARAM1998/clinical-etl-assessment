@@ -62,4 +62,18 @@ export class ETLController {
       next(error);
     }
   };
+
+  /**
+   * Get all ETL jobs
+   * GET /api/etl/jobs?status=completed
+   */
+  getAllJobs = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const status = req.query.status as string;
+      const jobs = await this.etlService.getAllJobs(status);
+      successResponse(res, jobs, 'ETL jobs fetched successfully');
+    } catch (error) {
+      next(error);
+    }
+  };
 }

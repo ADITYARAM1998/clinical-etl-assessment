@@ -28,7 +28,6 @@ export class ETLService {
   async submitJob(filename: string, studyId?: string): Promise<ETLJob> {
     const jobId = uuidv4();
 
-    // Create job record in database
     const job: ETLJob = {
       id: jobId,
       filename,
@@ -40,19 +39,11 @@ export class ETLService {
 
     await this.dbService.createETLJob(job);
 
-    // Submit job to ETL service
     try {
-      await axios.post(`${this.etlServiceUrl}/jobs`, {
-        jobId,
-        filename,
-        studyId
-      });
-
-      // Update job status to running
+      await axios.post(`${this.etlServiceUrl}/jobs`, { jobId, filename, studyId });
       await this.dbService.updateETLJobStatus(jobId, 'running');
       job.status = 'running';
     } catch (error) {
-      // Update job status to failed
       await this.dbService.updateETLJobStatus(jobId, 'failed', 'Failed to submit to ETL service');
       job.status = 'failed';
       job.errorMessage = 'Failed to submit to ETL service';
@@ -69,21 +60,24 @@ export class ETLService {
   }
 
   /**
-   * Get ETL job status from ETL service
+   * Get ETL job status
    */
   async getJobStatus(jobId: string): Promise<{ status: string; progress?: number; message?: string }> {
     try {
-      // 1. Validate job exists in DB
       const job = await this.dbService.getETLJob(jobId);
-      if (!job) {
-        throw new Error("Job not found in database");
-      }
+      if (!job) throw new Error("Job not found in database");
 
-      // 2. Fetch live status from ETL microservice
       const response = await axios.get(`${this.etlServiceUrl}/jobs/${jobId}/status`);
       return response.data;
     } catch (error: any) {
       throw new Error("Failed to get ETL job status: " + error.message);
     }
+  }
+
+  /**
+   * Get all ETL jobs (optional status filter)
+   */
+  async getAllJobs(status?: string): Promise<ETLJob[]> {
+    return this.dbService.getAllETLJobs(status);
   }
 }
