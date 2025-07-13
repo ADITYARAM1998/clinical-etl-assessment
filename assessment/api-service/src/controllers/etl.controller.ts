@@ -37,7 +37,7 @@ export class ETLController {
     try {
       const { id } = req.params;
       const job = await this.etlService.getJob(id);
-      
+
       if (!job) {
         errorResponse(res, 'Job not found', 404);
         return;
@@ -49,14 +49,17 @@ export class ETLController {
     }
   };
 
-  // TODO: CANDIDATE TO IMPLEMENT
-  // /**
-  //  * Get ETL job status
-  //  * GET /api/etl/jobs/:id/status
-  //  */
-  // getJobStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  //   // Implementation needed by candidate
-  //   // Should integrate with ETL service to get real-time status
-  //   // Handle error cases (invalid job ID, connection issues)
-  // };
+  /**
+   * Get ETL job status
+   * GET /api/etl/jobs/:id/status
+   */
+  getJobStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const status = await this.etlService.getJobStatus(id);
+      successResponse(res, status, 'Job status retrieved successfully');
+    } catch (error) {
+      next(error);
+    }
+  };
 }

@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS clinical_measurements (
     unit VARCHAR(20),
     timestamp TIMESTAMP NOT NULL,
     site_id VARCHAR(50) NOT NULL,
-    quality_score DECIMAL(3,2),
+    quality_score DECIMAL(6,2),
     processed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
