@@ -16,4 +16,9 @@ router.get('/jobs/:id/status', etlController.getJobStatus);
 // GET /api/etl/jobs - Get all jobs with optional ?status param
 router.get('/jobs', etlController.getAllJobs);
 
+router.get('/test', (req, res) => {
+  res.send('ETL routes are working');
+});
+
+
 export default router;

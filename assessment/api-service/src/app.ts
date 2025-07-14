@@ -20,6 +20,9 @@ export default async (): Promise<Express> => {
   // Routes
   app.use('/api', router);
 
+  console.log("API Routes registered");
+
+
   // Health check endpoint
   app.get('/health', (req: Request, res: Response) => {
     res.json({ status: 'healthy', timestamp: new Date().toISOString() });

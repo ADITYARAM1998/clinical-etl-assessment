@@ -1,42 +1,47 @@
 version: '3.8'
 
 services:
+  # Node.js API service
   api:
-    build: ./api-service
+    build: ./api-service  # Path to the Dockerfile for building the API image
     ports:
-      - "3000:3000"
+      - "3000:3000"  # Expose API on localhost:3000
     depends_on:
-      - postgres
-      - etl
+      - postgres     # Wait for PostgreSQL to be ready
+      - etl          # Wait for ETL service to be ready
     environment:
-      - NODE_ENV=development
-      - DATABASE_URL=postgresql://user:pass@postgres:5432/clinical_data
-      - ETL_SERVICE_URL=http://etl:8000
-    restart: unless-stopped
+      - NODE_ENV=development  # Set Node.js environment
+      - DATABASE_URL=postgresql://user:pass@postgres:5432/clinical_data  # Connect to Postgres DB
+      - ETL_SERVICE_URL=http://etl:8000  # Internal service URL to communicate with ETL service
+    volumes:
+      - ./data:/app/data  # Mount the local data folder to /app/data so API can access CSV files
+    restart: unless-stopped  # Restart unless manually stopped
 
+  # Python-based ETL service
   etl:
-    build: ./etl-service
+    build: ./etl-service  # Path to the Dockerfile for building the ETL image
     ports:
-      - "8000:8000"
+      - "8000:8000"  # Expose ETL service on localhost:8000
     depends_on:
-      - postgres
+      - postgres     # Wait for PostgreSQL to be ready
     environment:
-      - DATABASE_URL=postgresql://user:pass@postgres:5432/clinical_data
+      - DATABASE_URL=postgresql://user:pass@postgres:5432/clinical_data  # Connect to Postgres DB
     volumes:
-      - ./data:/app/data
-    restart: unless-stopped
+      - ./data:/app/data  # Mount the local data folder to /app/data so ETL can read the files
+    restart: unless-stopped  # Restart unless manually stopped
 
+  # PostgreSQL database service
   postgres:
-    image: public.ecr.aws/docker/library/postgres:15
+    image: public.ecr.aws/docker/library/postgres:15  # Use Postgres 15 image
     environment:
-      - POSTGRES_DB=clinical_data
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=pass
-      - POSTGRES_HOST_AUTH_METHOD=trust
+      - POSTGRES_DB=clinical_data        # DB name to create
+      - POSTGRES_USER=user              # Username
+      - POSTGRES_PASSWORD=pass          # Password
+      - POSTGRES_HOST_AUTH_METHOD=trust # Allow trust-based auth for local testing
     ports:
-      - "5432:5432"
+      - "5432:5432"  # Expose PostgreSQL on localhost:5432
     volumes:
-      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql  # Initialize schema on startup
     tmpfs:
-      - /var/lib/postgresql/data:noexec,nosuid,size=512m
-    restart: unless-stopped
+      - /var/lib/postgresql/data:noexec,nosuid,size=512m  # Use in-memory DB for better performance in dev
+    restart: unless-stopped  # Restart unless manually stopped
