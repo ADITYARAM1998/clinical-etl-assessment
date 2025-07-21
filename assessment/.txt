@@ -1,2 +1,1 @@
-Random file
-Random file to git submission
+Random file for commiting
